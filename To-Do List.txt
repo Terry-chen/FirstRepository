@@ -1,0 +1,52 @@
+To-Do list
+
+***Client***
+-add a check box that allows you to turn off colored names
+-Set up the structure for the Chat Messages tab
+-add /r functionality
+-keep always on top checkbox
+
+
+***Server***
+-create a password token function (done)
+	-the channel admin (the first person in that channel) can use this to request a randomly generated, one time use string token that a player can use to join a channel without the password
+-the server should lookup the information of the person sending the message and set the persons font format for their name
+	-a possible Easter Egg could be random name color change at random times or when a person types a specific character sequence at the start
+-implement ignore functionality
+
+
+message username security explained:
+
+int nextRand = rand.nextInt(rand.nextInt(5)+rand.nextInt(5)+rand.nextInt(5)+rand.nextInt(5)+rand.nextInt(5)+1); //get a new random number between 0 and 20
+for (int i = 0; i<=nextRand; i++)
+
+This could be broken by an altered message class that is designed to return the correct username X amount of times and then return the altered username after that.
+The most likely number for X to be would be 0, which would cause the username to be checked only once. However, there is only about a 10% chance that it will be 0 and 
+if they're wrong then their IP will be muted and they won't get to try again. If they design the class to return the correct username 20 times before returning the 
+spoofed username then it will eventually work and the test will not pick up on failed attempts to spoof the name. However, since 20 only comes up about 0.0015% of the time 
+it would probably take about 83333 attempts before they got it. 
+
+Random Number Distribution (multiply by 100 to get the percentage)
+#: ((number of times it was generated)/(the total count of numbers generated))
+0: 0.1011507
+1: 0.1010052
+2: 0.1001431
+3: 0.098645
+4: 0.0958384
+5: 0.091372
+6: 0.0847261
+7: 0.0765364
+8: 0.0663589
+9: 0.0549785
+10: 0.0431487
+11: 0.0321142
+12: 0.0223614
+13: 0.014521
+14: 0.0086448
+15: 0.0047266
+16: 0.0022931
+17: 9.743E-4
+18: 3.468E-4
+19: 1.0E-4
+20: 1.48E-5
+21: 0.0
