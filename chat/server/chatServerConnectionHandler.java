@@ -173,6 +173,7 @@ public class chatServerConnectionHandler //implements Runnable
 	{
 		whisperChatMessage querryResponseMessage;
 		
+
 		if (userList.containsKey(targetUsername)) //if the user is on the list
 		{
 			String userIP = userList.get(targetUsername).getUserIP();
@@ -185,6 +186,37 @@ public class chatServerConnectionHandler //implements Runnable
 		
 		//send whisper
 		handleWhisperMessage(querryResponseMessage);
+	}
+	
+	public void changeUserColor(String username, String colorNumber)
+	{
+		try
+		{
+			if (userList.containsKey(username)) //if the username is on the list
+				userList.get(username).setUserFontAttribute(Integer.parseInt(colorNumber));
+			
+///////			//do database stuff here
+		}
+		catch (Exception ex)
+		{
+			ex.printStackTrace();
+		}
+	}
+	
+	public void toggleMod(String username)
+	{
+		if (userList.containsKey(username))
+			userList.get(username).toggleMod();
+			
+/////		//do database stuff here
+	}
+	
+	public void toggleAdmin(String username)
+	{
+		if (userList.containsKey(username))
+			userList.get(username).toggleAdmin();
+			
+/////		//do database stuff here
 	}
 	
 }

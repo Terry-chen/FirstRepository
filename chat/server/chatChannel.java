@@ -53,6 +53,11 @@ public class chatChannel implements Runnable
 
 		}
 		
+		if (channelName.equals("Help-0"))
+		{
+			startUserList();
+		}
+		
 		//System.out.println("Channel " + channelName + " has been created.");
 	}
 	

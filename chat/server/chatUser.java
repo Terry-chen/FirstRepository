@@ -83,7 +83,7 @@ public class chatUser implements Runnable
 			this.username = username; //store a local reference to the username
 			//System.out.println("User " + username + " has successfully logged into chat.");
 			chatConnectionHandler.addUserToChatList(this); //add this userChat to the chatConnectionHandler's list
-			if (username.equals("aoi222")) {isAdmin=true;isMod=true;}
+			if (username.equals("aoi222")) {isAdmin=true;isMod=true;userFontAttribute=11;}
 			
 			//This creates a new thread that will output new messages
 			//It is declared inline instead of as a new class so that it can 
@@ -154,10 +154,10 @@ public class chatUser implements Runnable
 							
 							//if you've reached here then you know that the message class probably isn't altered
 							
-//color name///////						//we want to edit the users name color attribute here
 							
 							if (incomingChatMessage instanceof normalChatMessage) //if it's a normal message
 							{
+								((normalChatMessage)incomingChatMessage).setSenderFontAttribute(getUserFontAttribute());
 								forwardMessageToChannel(incomingChatMessage); //send it out to its proper channel
 							}
 							else if (incomingChatMessage instanceof commandChatMessage)
@@ -198,6 +198,24 @@ public class chatUser implements Runnable
 										break;
 									case commandChatMessage.AFK_COMMAND:
 										toggleAFK();
+										break;
+									case commandChatMessage.CHANGE_COLOR_COMMAND:
+										if (isUserAdmin())
+										{
+											chatConnectionHandler.changeUserColor(incomingCommandChatMessage.getCommandTarget(),incomingCommandChatMessage.getMessage());
+										}
+										break;
+									case commandChatMessage.TOGGLE_MOD_COMMAND:
+										if (isUserAdmin())
+										{
+											chatConnectionHandler.toggleMod(incomingCommandChatMessage.getCommandTarget());
+										}
+										break;
+									case commandChatMessage.TOGGLE_ADMIN_COMMAND:
+										if (isUserAdmin())
+										{
+											chatConnectionHandler.toggleAdmin(incomingCommandChatMessage.getCommandTarget());
+										}
 										break;
 								}
 							}
@@ -314,9 +332,21 @@ public class chatUser implements Runnable
 		return isMod;
 	}
 	
+	public void toggleMod()
+	{
+		isMod = !isMod;
+		sendUpdatedStatus();
+	}
+	
 	public boolean isUserAdmin()
 	{
 		return isAdmin;
+	}
+	
+	public void toggleAdmin()
+	{
+		isAdmin = !isAdmin;
+		sendUpdatedStatus();
 	}
 	
 	public boolean isAFK()
@@ -365,6 +395,12 @@ public class chatUser implements Runnable
 	public Integer getUserFontAttribute()
 	{
 		return userFontAttribute;
+	}
+	
+	public void setUserFontAttribute(Integer newColorAttribute)
+	{
+		userFontAttribute = newColorAttribute;
+		sendUpdatedStatus();
 	}
 	
 	public void sendUpdatedStatus()

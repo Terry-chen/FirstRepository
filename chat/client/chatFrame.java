@@ -185,6 +185,19 @@ public class chatFrame extends JInternalFrame implements Runnable
 							{
 								messageOutputStream.writeObject(new commandChatMessage("Don't Set Username Here", "No Message","Don't need channel Name",commandChatMessage.AFK_COMMAND));
 							}
+							else if (splitMessage[0].equals("/changeColor"))
+							{
+								String information[] = splitMessage[1].split(" ",2); //split it so that the channel name is in the first element and the password is in the second
+								messageOutputStream.writeObject(new commandChatMessage("Don't Set Username Here",information[1],commandChatMessage.CHANGE_COLOR_COMMAND,information[0]));
+							}
+							else if (splitMessage[0].equals("/makeMod"))
+							{
+								messageOutputStream.writeObject(new commandChatMessage("Don't Set Username Here","No Message", commandChatMessage.TOGGLE_MOD_COMMAND, splitMessage[1]));
+							}
+							else if (splitMessage[0].equals("/makeAdmin"))
+							{
+								messageOutputStream.writeObject(new commandChatMessage("Don't Set Username Here","No Message", commandChatMessage.TOGGLE_ADMIN_COMMAND, splitMessage[1]));
+							}
 							else //if it isn't a known chat command then send it as a normal message
 							{
 								if (!channelName.equals("~Chat Messages")) //if you're not in ~Chat Messages Channel

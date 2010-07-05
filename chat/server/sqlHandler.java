@@ -1,13 +1,13 @@
 package chat.server;
 
-import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
+//import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 
 public class sqlHandler
 {
-	public static final String DATABASE_USERNAME = "root";
+	/*public static final String DATABASE_USERNAME = "root";
 	public static final String DATABASE_PASSWORD = "";
 	public static final String DATABASE_CONNECTION = "localhost";
-	public static final int = DATABASE_CONNECTION_PORT = 3306;
+	public static final int DATABASE_CONNECTION_PORT = 3306;
 	public static final String MAIN_DATABASE_NAME = "hackwars_drupal";
 	public static final String CHAT_DATABASE_NAME = "HackWarsChatDatabase";
 	public static final String PLAYER_RELATION_TABLE_NAME = "PlayerRelationTable";
@@ -41,14 +41,14 @@ public class sqlHandler
 			
             ResultSet querryResults = statement.executeQuery(Querry);
 			
-			if (Res
+			//if (Res
 		}
 		catch (Exception ex)
 		{
 			return false;
 		}
 	}
-	
+	*/
 	
 
 }

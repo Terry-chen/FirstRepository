@@ -109,6 +109,31 @@ public class commandChatMessage extends chatMessage
 		Target - Not Used
 		command type - /startUserList
 	*/
+	public static final int CHANGE_COLOR_COMMAND = 11;
+	/*  MUTE_IP_COMMAND
+		sender - the person who sent the message
+		message - The number of the color you want to switch to
+		channelName - Not Used
+		Target - The username whos color you want to change
+		command type - /changeColor [username] [color number]
+	*/
+	public static final int TOGGLE_MOD_COMMAND = 12;
+	/*  MUTE_IP_COMMAND
+		sender - the person who sent the message
+		message - Not Used
+		channelName - Not Used
+		Target - The user you want to make into a mod
+		command type - /makeMod [username]
+	*/
+	public static final int TOGGLE_ADMIN_COMMAND = 13;
+	/*  MUTE_IP_COMMAND
+		sender - the person who sent the message
+		message - Not Used
+		channelName - Not Used
+		Target - The user you want to make into a admin
+		command type - /makeAdmin [username]
+	*/
+
 	
 	private int command;
 	private String commandTarget;
