@@ -5,6 +5,7 @@ import javax.swing.JDesktopPane;
 import javax.swing.JInternalFrame;
 import java.util.Scanner;
 
+
 public class IFrameDemo
 {
 
@@ -22,8 +23,11 @@ public class IFrameDemo
 		
 		for (int i = 0; i<1;i++)
 		{
-			//unix37.andrew.cmu.edu
-			chatFrame frame = new chatFrame(username,"","74.120.202.39",12345);
+			chatFrame frame;
+			if (args.length>0)
+				frame = new chatFrame(username,"",args[0],12345);
+			else
+				frame = new chatFrame(username,"","74.120.202.39",12345);
 			jdp.add(frame);
 			(new Thread(frame)).start();
 			frame.setVisible(true);
