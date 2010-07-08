@@ -26,8 +26,9 @@ public class chatFontAttributes
 	public static int LIGHT_GRAY_TEXT_FORMATTING = 9;
 	public static int CYAN_TEXT_FORMATTING = 10;
 	public static int BLUE_TEXT_FORMATTING = 11;
+	public static int BLACK_TEXT_FORMATTING = 12;
 	
-	public static Color availableColors[] = {Color.WHITE, Color.WHITE, Color.YELLOW, Color.RED, Color.GREEN, Color.YELLOW, Color.PINK, Color.MAGENTA, Color.ORANGE, Color.LIGHT_GRAY, Color.CYAN, Color.BLUE};
+	public static Color availableColors[] = {Color.WHITE, Color.WHITE, Color.YELLOW, Color.RED, Color.GREEN, Color.YELLOW, Color.PINK, Color.MAGENTA, Color.ORANGE, Color.LIGHT_GRAY, Color.CYAN, Color.BLUE, Color.BLACK};
 	
 	private static boolean areSimpleAttributeSetsInitialized = false;
 	
@@ -60,6 +61,7 @@ public class chatFontAttributes
 			textFormattings.add(new SimpleAttributeSet());
 			textFormattings.add(new SimpleAttributeSet());//10
 			textFormattings.add(new SimpleAttributeSet());
+			textFormattings.add(new SimpleAttributeSet());
 			
 			//set which attribute sets need to be bold
 			StyleConstants.setBold(textFormattings.get(BOLD_TEXT_FORMATTING), true);
@@ -71,6 +73,7 @@ public class chatFontAttributes
 			StyleConstants.setBold(textFormattings.get(LIGHT_GRAY_TEXT_FORMATTING), true);
 			StyleConstants.setBold(textFormattings.get(CYAN_TEXT_FORMATTING), true);
 			StyleConstants.setBold(textFormattings.get(BLUE_TEXT_FORMATTING), true);
+			StyleConstants.setBold(textFormattings.get(BLACK_TEXT_FORMATTING), true);
 			
 			//set the colors for the attribute sets
 			StyleConstants.setForeground(textFormattings.get(WHISPER_RECEIVED_TEXT_FORMATTING),WHISPER_RECEIVED_COLOR);
@@ -85,6 +88,7 @@ public class chatFontAttributes
 			StyleConstants.setForeground(textFormattings.get(LIGHT_GRAY_TEXT_FORMATTING),Color.LIGHT_GRAY);
 			StyleConstants.setForeground(textFormattings.get(CYAN_TEXT_FORMATTING),Color.CYAN);
 			StyleConstants.setForeground(textFormattings.get(BLUE_TEXT_FORMATTING),Color.BLUE);
+			StyleConstants.setForeground(textFormattings.get(BLACK_TEXT_FORMATTING),Color.BLACK);
 
 		
 		}
@@ -92,6 +96,13 @@ public class chatFontAttributes
 	
 	public SimpleAttributeSet getTextFormatting(int index)
 	{
-		return textFormattings.get(index); //return the disired SimpleAttributeSet
+		try
+		{
+			return textFormattings.get(index); //return the disired SimpleAttributeSet
+		}
+		catch(Exception ex)
+		{
+			return textFormattings.get(1);
+		}
 	}
 }

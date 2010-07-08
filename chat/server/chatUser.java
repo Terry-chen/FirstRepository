@@ -37,6 +37,7 @@ public class chatUser implements Runnable
 	private Random rand = new Random();
 	private Vector<chatMessage> outgoingMessagesList = new Vector<chatMessage>();
 	private Integer userFontAttribute = new Integer(1);
+	private sqlHandler mySqlHandler = new sqlHandler();
 	
 	public chatUser(Socket socket, chatServerConnectionHandler chatConnectionHandler)
 	{
@@ -67,6 +68,7 @@ public class chatUser implements Runnable
 		try
 		{
 			username = (String)incomingMessageStream.readObject();
+			this.username = username;
 			//System.out.println(username);
 			password = (String)incomingMessageStream.readObject();
 			//System.out.println(password);
@@ -81,9 +83,19 @@ public class chatUser implements Runnable
 		if (checkUsernameAndPassword(username, password)) //check the database to make sure the user has the correct password
 		{
 			this.username = username; //store a local reference to the username
-			//System.out.println("User " + username + " has successfully logged into chat.");
+			
 			chatConnectionHandler.addUserToChatList(this); //add this userChat to the chatConnectionHandler's list
-			if (username.equals("aoi222")) {isAdmin=true;isMod=true;userFontAttribute=11;}
+			
+			
+			Object userInformation[];
+			
+			userInformation = mySqlHandler.loadUserInformation(username);
+			
+			
+			isMuted = (Boolean)userInformation[0];
+			isMod = (Boolean)userInformation[1];
+			isAdmin = (Boolean)userInformation[2];
+			userFontAttribute = (Integer)userInformation[3];
 			
 			//This creates a new thread that will output new messages
 			//It is declared inline instead of as a new class so that it can 
@@ -117,10 +129,16 @@ public class chatUser implements Runnable
 			objectOutputThread.start();
 			
 /////			//start the channels that the user has set to autojoin here
+			String channelsToJoin[][] = mySqlHandler.getAutoJoinChannels(username);
+			for (int i = 0; i<channelsToJoin[0].length; ++i)
+			{
+				chatConnectionHandler.handleStartChatCommandMessage(new commandChatMessage(getUsername(), channelsToJoin[1][i], channelsToJoin[0][i], commandChatMessage.SC_COMMAND),this);
+			}
+			/*
 			chatConnectionHandler.handleStartChatCommandMessage(new commandChatMessage(getUsername(), "", "General-0", commandChatMessage.SC_COMMAND),this);
 			chatConnectionHandler.handleStartChatCommandMessage(new commandChatMessage(getUsername(), "", "Trade-0", commandChatMessage.SC_COMMAND),this);
 			chatConnectionHandler.handleStartChatCommandMessage(new commandChatMessage(getUsername(), "", "Help-0", commandChatMessage.SC_COMMAND),this);
-			
+			*/
 			
 			try //this is in case the connection suddenly drops
 			{
@@ -324,6 +342,7 @@ public class chatUser implements Runnable
 	{
 		isMuted = !isMuted;
 		sendUpdatedStatus();
+		updateSQLDatabase();
 	}
 	
 	//do not try to do the database stuff here because this only gets called if the user is online
@@ -336,6 +355,7 @@ public class chatUser implements Runnable
 	{
 		isMod = !isMod;
 		sendUpdatedStatus();
+		updateSQLDatabase();
 	}
 	
 	public boolean isUserAdmin()
@@ -347,6 +367,7 @@ public class chatUser implements Runnable
 	{
 		isAdmin = !isAdmin;
 		sendUpdatedStatus();
+		updateSQLDatabase();
 	}
 	
 	public boolean isAFK()
@@ -401,6 +422,7 @@ public class chatUser implements Runnable
 	{
 		userFontAttribute = newColorAttribute;
 		sendUpdatedStatus();
+		updateSQLDatabase();
 	}
 	
 	public void sendUpdatedStatus()
@@ -410,6 +432,11 @@ public class chatUser implements Runnable
 		{
 			subscribedChannelsList.get((String)channelKeyList[i]).sendUpdatedUserStatus(username); 
 		}
+	}
+	
+	public void updateSQLDatabase()
+	{
+		mySqlHandler.updateUserProfile(username,isUserMuted(),isUserMod(),isUserAdmin(),userFontAttribute);
 	}
 	
 }
