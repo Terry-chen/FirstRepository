@@ -1,0 +1,5 @@
+HackWars Chat 2.0
+
+Chat is broken into three main parts (server, client, and messages).
+The server communicates with the clients by sending message classes 
+through its socket connection.
