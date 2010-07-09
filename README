@@ -1,5 +1,38 @@
 HackWars Chat 2.0
 
-Chat is broken into three main parts (server, client, and messages).
+This program is designed to be an add-in to the HackWars MMORPG game 
+client, though it could easily be converted to a stand alone application.
+
+Users will have the ability to join/leave/create channels, post messaging 
+in the channels they have joined, and send private message to other users.
+Users can also be made into Admins and Moderators in order to gain functions 
+such as muting and kicking players from public channels.
+
+Available Chat Commands
+    * /w <name> <text> : Whispers the text to a user.
+    * /r <text> : Whispers the text to the last user who whispered you.
+    * /sc <name> <password or Token> : Creates a channel with the given password. 
+			If no password is provided it is open for all. If the channel already 
+			exists then the channel will be joined, provided the supplied password 
+			is correct.
+    * /getToken : Channel Admin only. Will return a random 15 character string 
+			that can be used once to join that channel without the channels 
+			password. Only one token may exist at a time for any single channel.
+    * /lc : Leaves the current channel.
+    * /kick <username> : kick a user out of the channel. You need to be the 
+			channel Admin or a Moderator to do this.
+    * /stfu <username> : Mods only. mutes a user. To unmute use the same command.
+    * /getIP <username> : Mods only. Allows the moderator to check the IP of a 
+			connected client in order to help prevent chat spam with multiple accounts.
+    * /muteIP <IP Address> : Mods and !System! only. Mutes all incoming messages 
+			from the supplied IP until the chat server is restarted.
+    * /me <action> : Does an action in that channel
+    * /startUserList : Mods and Channel Admins only. Will start the user list on
+			that channel for all connected clients. Once the user list is turned 
+			on it can not be turned off.
+    * /afk : will toggle the users current status to AFK mode. This will be displayed next to the user's name in all channel user lists. 
+
+
+The program is broken into three main parts (server, client, and messages).
 The server communicates with the clients by sending message classes 
 through its socket connection.

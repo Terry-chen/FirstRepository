@@ -52,7 +52,9 @@ public class sqlHandler
 	
 	public boolean checkLogin(String username, String password)
 	{
+		return true; //here only for testing purposes
 		
+		/*
         if (username.contains("\"")) return false;
         if (username.contains("\'")) return false;
         if (password.contains("\"")) return false;
@@ -74,6 +76,8 @@ public class sqlHandler
 		{
 			return false;
 		}
+		
+		*/
 	}
 	
 	public void updateUserProfile(String username, boolean isMuted, boolean isMod, boolean isAdmin, int color)
@@ -83,9 +87,9 @@ public class sqlHandler
 		
 		String Update = "UPDATE " + USER_INFORMATION_TABLE_NAME + " SET";
 		Update += " muted=" + ((isMuted)?"1":"0");
-		Update += " isMod=" + ((isMod)?"1":"0");
-		Update += " isAdmin=" + ((isAdmin)?"1":"0");
-		Update += " color=" + color;
+		Update += ", isMod=" + ((isMod)?"1":"0");
+		Update += ", isAdmin=" + ((isAdmin)?"1":"0");
+		Update += ", color=" + color;
 		Update += " WHERE username LIKE '" + username + "'";
 		
 		try
@@ -118,6 +122,30 @@ public class sqlHandler
 				ex.printStackTrace();
 			}
 		}
+	}
+	
+	public void toggleMuted(String username)
+	{
+		Object currentSettings[] = loadUserInformation(username);
+		updateUserProfile(username,!((Boolean)currentSettings[0]).booleanValue(), ((Boolean)currentSettings[1]).booleanValue(),((Boolean)currentSettings[2]).booleanValue(),((Integer)currentSettings[3]).intValue());
+	}
+	
+	public void toggleMod(String username)
+	{
+		Object currentSettings[] = loadUserInformation(username);
+		updateUserProfile(username,((Boolean)currentSettings[0]).booleanValue(), !((Boolean)currentSettings[1]).booleanValue(),((Boolean)currentSettings[2]).booleanValue(),((Integer)currentSettings[3]).intValue());
+	}
+	
+	public void toggleAdmin(String username)
+	{
+		Object currentSettings[] = loadUserInformation(username);
+		updateUserProfile(username,((Boolean)currentSettings[0]).booleanValue(), ((Boolean)currentSettings[1]).booleanValue(),!((Boolean)currentSettings[2]).booleanValue(),((Integer)currentSettings[3]).intValue());
+	}
+	
+	public void changeColor(String username, String newColor)
+	{
+		Object currentSettings[] = loadUserInformation(username);
+		updateUserProfile(username,((Boolean)currentSettings[0]).booleanValue(), ((Boolean)currentSettings[1]).booleanValue(),((Boolean)currentSettings[2]).booleanValue(),Integer.parseInt(newColor));
 	}
 	
 	public void addUserProfile(String username)

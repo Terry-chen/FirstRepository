@@ -86,17 +86,6 @@ public class chatUser implements Runnable
 			
 			chatConnectionHandler.addUserToChatList(this); //add this userChat to the chatConnectionHandler's list
 			
-			
-			Object userInformation[];
-			
-			userInformation = mySqlHandler.loadUserInformation(username);
-			
-			
-			isMuted = (Boolean)userInformation[0];
-			isMod = (Boolean)userInformation[1];
-			isAdmin = (Boolean)userInformation[2];
-			userFontAttribute = (Integer)userInformation[3];
-			
 			//This creates a new thread that will output new messages
 			//It is declared inline instead of as a new class so that it can 
 			//access all the elements of this class.
@@ -195,7 +184,7 @@ public class chatUser implements Runnable
 										if (isUserMod())
 										{
 											//do the database stuff to mute the user here
-//database////////////////////////////////////////////										
+											mySqlHandler.toggleMuted(incomingCommandChatMessage.getCommandTarget());
 											chatConnectionHandler.muteUser(incomingCommandChatMessage.getCommandTarget());
 										}
 										break;
@@ -220,18 +209,21 @@ public class chatUser implements Runnable
 									case commandChatMessage.CHANGE_COLOR_COMMAND:
 										if (isUserAdmin())
 										{
+											mySqlHandler.changeColor(incomingCommandChatMessage.getCommandTarget(),incomingCommandChatMessage.getMessage());
 											chatConnectionHandler.changeUserColor(incomingCommandChatMessage.getCommandTarget(),incomingCommandChatMessage.getMessage());
 										}
 										break;
 									case commandChatMessage.TOGGLE_MOD_COMMAND:
 										if (isUserAdmin())
 										{
+											mySqlHandler.toggleMod(incomingCommandChatMessage.getCommandTarget());
 											chatConnectionHandler.toggleMod(incomingCommandChatMessage.getCommandTarget());
 										}
 										break;
 									case commandChatMessage.TOGGLE_ADMIN_COMMAND:
 										if (isUserAdmin())
 										{
+											mySqlHandler.toggleAdmin(incomingCommandChatMessage.getCommandTarget());
 											chatConnectionHandler.toggleAdmin(incomingCommandChatMessage.getCommandTarget());
 										}
 										break;
@@ -328,8 +320,26 @@ public class chatUser implements Runnable
 	
 	public synchronized boolean checkUsernameAndPassword(String username, String password)
 	{
-////////		//there needs to be some check here that actually checks the username against the database
-		return true;
+		if (mySqlHandler.checkLogin(username,password))
+		{
+			Object userInformation[];
+			
+			userInformation = mySqlHandler.loadUserInformation(username);
+			
+			
+			isMuted = (Boolean)userInformation[0];
+			isMod = (Boolean)userInformation[1];
+			isAdmin = (Boolean)userInformation[2];
+			userFontAttribute = (Integer)userInformation[3];
+			
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+		
+		
 	}
 	
 	public boolean isUserMuted()
@@ -342,7 +352,6 @@ public class chatUser implements Runnable
 	{
 		isMuted = !isMuted;
 		sendUpdatedStatus();
-		updateSQLDatabase();
 	}
 	
 	//do not try to do the database stuff here because this only gets called if the user is online
@@ -355,7 +364,6 @@ public class chatUser implements Runnable
 	{
 		isMod = !isMod;
 		sendUpdatedStatus();
-		updateSQLDatabase();
 	}
 	
 	public boolean isUserAdmin()
@@ -367,7 +375,6 @@ public class chatUser implements Runnable
 	{
 		isAdmin = !isAdmin;
 		sendUpdatedStatus();
-		updateSQLDatabase();
 	}
 	
 	public boolean isAFK()
@@ -422,7 +429,6 @@ public class chatUser implements Runnable
 	{
 		userFontAttribute = newColorAttribute;
 		sendUpdatedStatus();
-		updateSQLDatabase();
 	}
 	
 	public void sendUpdatedStatus()
@@ -432,11 +438,6 @@ public class chatUser implements Runnable
 		{
 			subscribedChannelsList.get((String)channelKeyList[i]).sendUpdatedUserStatus(username); 
 		}
-	}
-	
-	public void updateSQLDatabase()
-	{
-		mySqlHandler.updateUserProfile(username,isUserMuted(),isUserMod(),isUserAdmin(),userFontAttribute);
 	}
 	
 }
