@@ -177,7 +177,7 @@ public class chatUser implements Runnable
 										forwardMessageToChannel(incomingChatMessage); //send it out to its proper channel
 										break; //exit switch
 									case commandChatMessage.STFU_COMMAND:
-										if (isUserMod())
+										if (isUserMod() || isUserAdmin())
 										{
 											//do the database stuff to mute the user here
 											mySqlHandler.toggleMuted(incomingCommandChatMessage.getCommandTarget());
@@ -185,16 +185,17 @@ public class chatUser implements Runnable
 										}
 										break;
 									case commandChatMessage.MUTE_IP_COMMAND:
-										if (isUserMod())
+										if (isUserMod() || isUserAdmin())
 										{
 											chatConnectionHandler.muteIP(incomingCommandChatMessage.getCommandTarget());
+											sendMessage(new whisperChatMessage("!System!","You toggled " + incomingCommandChatMessage.getCommandTarget() + "'s mute status.",username));
 										}
 										break;
 									case commandChatMessage.SC_COMMAND:
 										chatConnectionHandler.handleStartChatCommandMessage(incomingCommandChatMessage, this); //this must go to the chatConnectionHandler since it keeps the master list of channels
 										break; //exit switch
 									case commandChatMessage.GET_USER_IP_COMMAND:
-										if (isUserMod())
+										if (isUserMod() || isUserAdmin())
 										{
 											chatConnectionHandler.getUserIP(incomingCommandChatMessage.getCommandTarget(),incomingCommandChatMessage.getSender());
 										}
@@ -214,6 +215,7 @@ public class chatUser implements Runnable
 										{
 											mySqlHandler.toggleMod(incomingCommandChatMessage.getCommandTarget());
 											chatConnectionHandler.toggleMod(incomingCommandChatMessage.getCommandTarget());
+											sendMessage(new whisperChatMessage("!System!","You toggled " + incomingCommandChatMessage.getCommandTarget() + "'s mod status.",username));
 										}
 										break;
 									case commandChatMessage.TOGGLE_ADMIN_COMMAND:
@@ -221,6 +223,7 @@ public class chatUser implements Runnable
 										{
 											mySqlHandler.toggleAdmin(incomingCommandChatMessage.getCommandTarget());
 											chatConnectionHandler.toggleAdmin(incomingCommandChatMessage.getCommandTarget());
+											sendMessage(new whisperChatMessage("!System!","You toggled " + incomingCommandChatMessage.getCommandTarget() + "'s admin status.",username));
 										}
 										break;
 								}
@@ -351,8 +354,11 @@ public class chatUser implements Runnable
 	//do not try to do the database stuff here because this only gets called if the user is online
 	public void toggleMuted()
 	{
-		isMuted = !isMuted;
-		sendUpdatedStatus();
+		if (!isUserAdmin() && ! isUserMod())
+		{
+			isMuted = !isMuted;
+			sendUpdatedStatus();
+		}
 	}
 	
 	//do not try to do the database stuff here because this only gets called if the user is online

@@ -29,7 +29,7 @@ public class chatAutoJoinChannelsFrame extends JInternalFrame
 		messageOutputStreamReference = messageOutputStream;
 		username = channelsDataMessage.getSender();
 		
-		setSize(600,400);
+		setSize(400,400);
 		setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
 		setBackground(Color.BLACK);
 		setLayout(new BorderLayout());
@@ -99,6 +99,7 @@ public class chatAutoJoinChannelsFrame extends JInternalFrame
 					DefaultTableModel dtm = (DefaultTableModel)dataTable.getModel();
 					messageOutputStreamReference.writeObject(new channelAutoJoinListMessage(username,dtm.getDataVector()));
 					messageOutputStreamReference.flush();
+					JOptionPane.showConfirmDialog(null,"Your save has been sent to the server.","Saved",JOptionPane.OK_OPTION);
 				}
 				catch (Exception ex)
 				{

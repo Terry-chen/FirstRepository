@@ -252,7 +252,7 @@ public class chatChannel implements Runnable
 					break;
 				case commandChatMessage.KICK_COMMAND:
 					requestingUser = incomingCommandChatMessage.getSender();
-					if (currentChannelAdmin.equals(requestingUser) || connectedUsersList.get(requestingUser).isUserMod())
+					if (currentChannelAdmin.equals(requestingUser) || connectedUsersList.get(requestingUser).isUserMod() || connectedUsersList.get(requestingUser).isUserAdmin())
 					{
 						removeUserFromChannel(incomingCommandChatMessage.getCommandTarget());
 					}
