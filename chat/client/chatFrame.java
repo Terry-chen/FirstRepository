@@ -37,7 +37,7 @@ public class chatFrame extends JInternalFrame implements Runnable
 	JButton sendMessageButton;
 	JMenuBar menuBar;
 	JMenu fileMenu, helpMenu, channelsMenu;
-	JMenuItem exitMenuItem, addChannelMenuItem, removeChannelMenuItem, autoJoinChannelsMenuItem, aboutMenuItem;
+	JMenuItem exitMenuItem, autoJoinChannelsMenuItem, aboutMenuItem;
 	JTabbedPane chatTabbedPane;
 	chatAboutFrame aboutFrame = new chatAboutFrame();
 	chatAutoJoinChannelsFrame autoJoinChannelsFrame;
@@ -86,24 +86,6 @@ public class chatFrame extends JInternalFrame implements Runnable
 		helpMenu.add(aboutMenuItem); //add the about Menu Item to the help Menu
 		
 		channelsMenu = new JMenu("Channels"); //create a new Menu that will hold all the available Menu Items dealing with tabs
-		addChannelMenuItem = new JMenuItem("Create New"); //create a new JMenuItem to add channels to the list
-		addChannelMenuItem.addActionListener( new ActionListener() //create a new action listener for when someone clicks the addChannel Menu Item
-		{
-			public void actionPerformed(ActionEvent event)
-			{
-				//add a new channel to the list here.
-			}
-		});
-		channelsMenu.add(addChannelMenuItem); //add the addChannel Menu Item to the tabs Menu
-		removeChannelMenuItem = new JMenuItem("Remove Current"); //create a new JMenuItem to remove channels
-		removeChannelMenuItem.addActionListener( new ActionListener() //create a new action listener for when someone clicks the removeChannel Menu Item
-		{
-			public void actionPerformed(ActionEvent event)
-			{
-				//remove channel from the list here.
-			}
-		});
-		channelsMenu.add(removeChannelMenuItem); //add the auto Join Channels Menu Item to the tabs menu
 		autoJoinChannelsMenuItem = new JMenuItem("Change AutoJoin Channels"); //create a new JMenuItem to adjust auto Join channels
 		autoJoinChannelsMenuItem.addActionListener( new ActionListener() //create a new action listener for when someone clicks the autoJoinChannels Menu Item
 		{
