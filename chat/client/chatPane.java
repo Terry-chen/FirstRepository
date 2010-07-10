@@ -120,9 +120,18 @@ public class chatPane extends JPanel
 			
 			if (incomingChatMessage instanceof normalChatMessage)
 			{
+				String newLineChar = "\n";
 				normalChatMessage nCM = (normalChatMessage)incomingChatMessage; // cast the incoming message into a normalChatMessage variable
+				if (nCM.getMessage().equalsIgnoreCase("/meaningOfLife"))
+					nCM.setMessage("42");
+				else if (nCM.getMessage().equalsIgnoreCase("/newLineGlitch"))
+				{
+					newLineChar = "";
+					nCM.setMessage("");
+				}
+					
 				doc.insertString(doc.getLength(),getTimeStamp() + " " + nCM.getSender() + ": ",textFormattings.getTextFormatting(nCM.getSenderFontAttribute())); //add the time stamp and the senders name to the display area using the senders name formatting
-				doc.insertString(doc.getLength(), nCM.getMessage() + "\n", textFormattings.getTextFormatting(chatFontAttributes.NORMAL_TEXT_FORMATTING)); //add the message to the display area using the normal text formatting
+				doc.insertString(doc.getLength(), nCM.getMessage() + newLineChar, textFormattings.getTextFormatting(chatFontAttributes.NORMAL_TEXT_FORMATTING)); //add the message to the display area using the normal text formatting
 			}
 			else if (incomingChatMessage instanceof whisperChatMessage)
 			{

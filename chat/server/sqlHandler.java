@@ -128,7 +128,9 @@ public class sqlHandler
 	public void toggleMuted(String username)
 	{
 		Object currentSettings[] = loadUserInformation(username);
-		updateUserProfile(username,!((Boolean)currentSettings[0]).booleanValue(), ((Boolean)currentSettings[1]).booleanValue(),((Boolean)currentSettings[2]).booleanValue(),((Integer)currentSettings[3]).intValue());
+		
+		if (!((Boolean)currentSettings[1]).booleanValue() && !((Boolean)currentSettings[2]).booleanValue()) //if the user isn't a Mod or Admin
+			updateUserProfile(username,!((Boolean)currentSettings[0]).booleanValue(), ((Boolean)currentSettings[1]).booleanValue(),((Boolean)currentSettings[2]).booleanValue(),((Integer)currentSettings[3]).intValue());
 	}
 	
 	public void toggleMod(String username)

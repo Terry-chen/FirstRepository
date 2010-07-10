@@ -80,7 +80,7 @@ public class chatFrame extends JInternalFrame implements Runnable
 			public void actionPerformed(ActionEvent event)
 			{
 				//show about box here
-				aboutFrame.show();
+				aboutFrame.setVisible(true);
 			}
 		});
 		helpMenu.add(aboutMenuItem); //add the about Menu Item to the help Menu
@@ -109,7 +109,7 @@ public class chatFrame extends JInternalFrame implements Runnable
 		{
 			public void actionPerformed(ActionEvent event)
 			{
-				autoJoinChannelsFrame.show();
+				autoJoinChannelsFrame.setVisible(true);
 			}
 		});
 		channelsMenu.add(autoJoinChannelsMenuItem); //add the autoJoinChannels Menu Item to the tabs menu

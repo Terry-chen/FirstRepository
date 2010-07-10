@@ -22,6 +22,9 @@ public class chatAutoJoinChannelsFrame extends JInternalFrame
 	ObjectOutputStream messageOutputStreamReference; //required to send messages
 	JTable dataTable;
 	String username;
+	Vector<String> headers = new Vector<String>();
+	Vector<Vector<String>> lastSaveData;
+	
 	
 	public chatAutoJoinChannelsFrame(ObjectOutputStream messageOutputStream, channelAutoJoinListMessage channelsDataMessage)
 	{
@@ -34,11 +37,12 @@ public class chatAutoJoinChannelsFrame extends JInternalFrame
 		setBackground(Color.BLACK);
 		setLayout(new BorderLayout());
 		
-		Vector<String> headers = new Vector<String>();
+		
 		headers.add("Channel Name");
 		headers.add("Password");
+		lastSaveData = channelsDataMessage.getChannelData();
 		
-		dataTable = new JTable(channelsDataMessage.getChannelData(),headers)
+		dataTable = new JTable((Vector<Vector<String>>)lastSaveData.clone(),headers)
 		{
 			public boolean isCellEditable(int rowIndex, int colIndex) 
 			{
@@ -53,7 +57,7 @@ public class chatAutoJoinChannelsFrame extends JInternalFrame
 		
 		JPanel inputPanel = new JPanel();
 		
-		JButton removeRowButton = new JButton("Remove selected row");
+		JButton removeRowButton = new JButton("Remove selected rows");
 		removeRowButton.addActionListener( new ActionListener() //create a new action listener for when someone clicks the autoJoinChannels Menu Item
 		{
 			public void actionPerformed(ActionEvent event)
@@ -97,9 +101,10 @@ public class chatAutoJoinChannelsFrame extends JInternalFrame
 				try
 				{
 					DefaultTableModel dtm = (DefaultTableModel)dataTable.getModel();
-					messageOutputStreamReference.writeObject(new channelAutoJoinListMessage(username,dtm.getDataVector()));
+					lastSaveData = dtm.getDataVector();
+					messageOutputStreamReference.writeObject(new channelAutoJoinListMessage(username,lastSaveData));
 					messageOutputStreamReference.flush();
-					JOptionPane.showConfirmDialog(null,"Your save has been sent to the server.","Saved",JOptionPane.OK_OPTION);
+					JOptionPane.showMessageDialog(null,"Your save has been sent to the server.","Saved",JOptionPane.PLAIN_MESSAGE);
 				}
 				catch (Exception ex)
 				{
@@ -114,6 +119,16 @@ public class chatAutoJoinChannelsFrame extends JInternalFrame
 		inputPanel.add(saveButton);
 		
 		add(inputPanel,BorderLayout.SOUTH);
+	}
+	
+	public void setVisible(boolean aFlag)
+	{
+		super.setVisible(aFlag);
+		
+		if (aFlag == true)//if you're making the frame visible
+		{
+			((DefaultTableModel)dataTable.getModel()).setDataVector((Vector<Vector<String>>)lastSaveData.clone(),headers); //load the last saved data into the table
+		}
 	}
 }
 
