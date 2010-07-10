@@ -105,4 +105,16 @@ public class chatFontAttributes
 			return textFormattings.get(1);
 		}
 	}
+	
+	public static Color getColor(int index)
+	{
+		try
+		{
+			return availableColors[index]; //return the disired SimpleAttributeSet
+		}
+		catch(Exception ex)
+		{
+			return availableColors[0];
+		}
+	}
 }

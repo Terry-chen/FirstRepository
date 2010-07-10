@@ -31,7 +31,7 @@ public class chatPane extends JPanel
 	
 	private final int MAX_MESSAGE_COUNT=100; //the maximum number of messages that should ever be displayed
 	private int currentLineCount = 0; //this acutally counts the number of messages that are currently displayed, not the number of lines
-	private Vector<chatMessage> chatMessageHistory = new Vector<chatMessage>(); //This will be used to store the last 100 messages received. This may take up a lot of memory, so if there are memory issues this should be the first feature to go.
+	//private Vector<chatMessage> chatMessageHistory = new Vector<chatMessage>(); //This will be used to store the last 100 messages received. This may take up a lot of memory, so if there are memory issues this should be the first feature to go. It was going to be used to regenerate all the text in the chatPane if the user changed certain options, but those options have not yet been implemented
 	private Vector<String> usernameList;
 	private Vector<Integer> channelUserListColors;
 	private Vector<String> usernameStatus;
@@ -79,7 +79,7 @@ public class chatPane extends JPanel
 				cellRenderingLabel.setFont(f);
 				cellRenderingLabel.setOpaque(true);
 				cellRenderingLabel.setForeground(Color.WHITE);
-				cellRenderingLabel.setForeground(chatFontAttributes.availableColors[channelUserListColors.get(index).intValue()]);
+				cellRenderingLabel.setForeground(chatFontAttributes.getColor(channelUserListColors.get(index).intValue()));
 				if (isSelected)
 				{
 					cellRenderingLabel.setBackground(new Color(41,42,41));
@@ -122,6 +122,8 @@ public class chatPane extends JPanel
 			{
 				String newLineChar = "\n";
 				normalChatMessage nCM = (normalChatMessage)incomingChatMessage; // cast the incoming message into a normalChatMessage variable
+				
+				//start easter eggs
 				if (nCM.getMessage().equalsIgnoreCase("/meaningOfLife"))
 					nCM.setMessage("42");
 				else if (nCM.getMessage().equalsIgnoreCase("/newLineGlitch"))
@@ -129,7 +131,9 @@ public class chatPane extends JPanel
 					newLineChar = "";
 					nCM.setMessage("");
 				}
-					
+				nCM.setMessage(nCM.getMessage().replaceAll("(V|v)(O|o)(L|l)(D|d)(E|e)(M|m)(O|o)(R|r)(T|t)","He-Who-Must-Not-Be-Named"));
+				//end easter eggs
+				
 				doc.insertString(doc.getLength(),getTimeStamp() + " " + nCM.getSender() + ": ",textFormattings.getTextFormatting(nCM.getSenderFontAttribute())); //add the time stamp and the senders name to the display area using the senders name formatting
 				doc.insertString(doc.getLength(), nCM.getMessage() + newLineChar, textFormattings.getTextFormatting(chatFontAttributes.NORMAL_TEXT_FORMATTING)); //add the message to the display area using the normal text formatting
 			}
@@ -157,10 +161,10 @@ public class chatPane extends JPanel
 			if (currentLineCount>MAX_MESSAGE_COUNT) //if the number of messages displayed is over the allowed amount
 			{
 				doc.remove(0,chatTextPane.getText().indexOf("\n")); //remove everything from the beginning to the first line break (ie. the oldest message
-				chatMessageHistory.removeElementAt(0); //remove the oldest message from the history
+				//chatMessageHistory.removeElementAt(0); //remove the oldest message from the history
 			}
 			
-			chatMessageHistory.add(incomingChatMessage); //add this message to the end of the History list
+			//chatMessageHistory.add(incomingChatMessage); //add this message to the end of the History list
 			
 			chatTextPane.setDocument(doc); //set the chatTextPane to display the new document
 			
