@@ -32,6 +32,26 @@ Available Chat Commands
 			on it can not be turned off.
     * /afk : will toggle the users current status to AFK mode. This will be displayed next to the user's name in all channel user lists. 
 
+Below is a list of all the names used in the chat Database Structure to store data. 
+You will need to create a Database named "HackWarsChatDatabase" containing two tables 
+named "userTable" and "channelAutoJoinTable" with the attributes listed below. The chat 
+server will try to access the "hackwars_drupal" database to check the users login information.
+The current login code is commented out since I do not have a copy of the "hackwar_drupal" 
+database structure set up on my test pc.
+
+SQL Database Structure Names
+	HackWarsChatDatabase
+		userTable
+			- username
+			- muted
+			- isMod
+			- isAdmin
+			- color
+		channelAutoJoinTable
+			- username
+			- channelName
+			- channelPassword
+			- joinOrder
 
 The program is broken into three main parts (server, client, and messages).
 The server communicates with the clients by sending message classes 
