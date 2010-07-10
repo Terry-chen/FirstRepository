@@ -265,7 +265,7 @@ public class chatChannel implements Runnable
 					connectedUsersList.get(requestingUser).sendMessage(new normalChatMessage("!System!",createToken(requestingUser),getChannelName()));
 					break;
 				case commandChatMessage.START_USER_LIST_COMMAND:
-					if (currentChannelAdmin.equals(incomingCommandChatMessage.getSender()) || connectedUsersList.get(incomingCommandChatMessage.getSender()).isUserMod()) //if the person sending this message is the channel admin or a mod
+					if (currentChannelAdmin.equals(incomingCommandChatMessage.getSender()) || connectedUsersList.get(incomingCommandChatMessage.getSender()).isUserAdmin()) //if the person sending this message is the channel admin or a mod
 					{
 						if (!isUserListOn) //if the user list is not on
 						{

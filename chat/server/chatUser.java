@@ -117,17 +117,13 @@ public class chatUser implements Runnable
 			
 			objectOutputThread.start();
 			
-/////			//start the channels that the user has set to autojoin here
-			String channelsToJoin[][] = mySqlHandler.getAutoJoinChannels(username);
-			for (int i = 0; i<channelsToJoin[0].length; ++i)
+			//start the channels that the user has set to autojoin here
+			Vector<Vector<String>> channelsToJoin = mySqlHandler.getAutoJoinChannels(username);
+			sendMessage(new channelAutoJoinListMessage(username,channelsToJoin));
+			for (int i = 0; i<channelsToJoin.size(); ++i)
 			{
-				chatConnectionHandler.handleStartChatCommandMessage(new commandChatMessage(getUsername(), channelsToJoin[1][i], channelsToJoin[0][i], commandChatMessage.SC_COMMAND),this);
+				chatConnectionHandler.handleStartChatCommandMessage(new commandChatMessage(getUsername(), channelsToJoin.get(i).get(1), channelsToJoin.get(i).get(0), commandChatMessage.SC_COMMAND),this);
 			}
-			/*
-			chatConnectionHandler.handleStartChatCommandMessage(new commandChatMessage(getUsername(), "", "General-0", commandChatMessage.SC_COMMAND),this);
-			chatConnectionHandler.handleStartChatCommandMessage(new commandChatMessage(getUsername(), "", "Trade-0", commandChatMessage.SC_COMMAND),this);
-			chatConnectionHandler.handleStartChatCommandMessage(new commandChatMessage(getUsername(), "", "Help-0", commandChatMessage.SC_COMMAND),this);
-			*/
 			
 			try //this is in case the connection suddenly drops
 			{
@@ -232,6 +228,11 @@ public class chatUser implements Runnable
 							else if (incomingChatMessage instanceof whisperChatMessage)
 							{
 								chatConnectionHandler.handleWhisperMessage((whisperChatMessage)incomingChatMessage);
+							}
+							else if (incomingChatMessage instanceof channelAutoJoinListMessage)
+							{
+								channelAutoJoinListMessage incomingCAJLM = (channelAutoJoinListMessage)incomingChatMessage;
+								mySqlHandler.updateAutoJoinChannels(getUsername(),incomingCAJLM.getChannelData());
 							}
 						}
 					}

@@ -1,1 +1,2 @@
-java chat/client/IFrameDemo 127.0.0.1
+REM java chat/client/IFrameDemo 74.120.202.39
+java chat/client/IFrameDemo

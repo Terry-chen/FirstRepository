@@ -17,7 +17,7 @@ public class IFrameDemo
 		JFrame jf = new JFrame("JInternal Frame Test");
 		JDesktopPane jdp = new JDesktopPane();
 		jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		jf.setSize(800,600);
+		jf.setSize(900,700);
 		jf.setVisible(true);
 		jf.add(jdp);
 		
@@ -25,9 +25,9 @@ public class IFrameDemo
 		{
 			chatFrame frame;
 			if (args.length>0)
-				frame = new chatFrame(username,"",args[0],12345);
+				frame = new chatFrame(username,"",args[0],12345,jdp);
 			else
-				frame = new chatFrame(username,"","74.120.202.39",12345);
+				frame = new chatFrame(username,"","127.0.0.1",12345,jdp);
 			jdp.add(frame);
 			(new Thread(frame)).start();
 			frame.setVisible(true);

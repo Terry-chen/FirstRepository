@@ -10,6 +10,7 @@ import java.awt.Color;
 import javax.swing.JTextField;
 import javax.swing.JTextArea;
 import javax.swing.JTabbedPane;
+import javax.swing.JDesktopPane;
 import javax.swing.event.ChangeListener; //used to listen for when tab focus is changed
 import javax.swing.event.ChangeEvent; //used to listen for when tab focus is changed
 import javax.swing.JMenu;
@@ -18,6 +19,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JInternalFrame;
 import javax.swing.WindowConstants;
 import java.util.HashMap;
+import java.util.Vector;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
@@ -34,9 +36,11 @@ public class chatFrame extends JInternalFrame implements Runnable
 	JTextField inputMessageTextBox;
 	JButton sendMessageButton;
 	JMenuBar menuBar;
-	JMenu fileMenu, helpMenu, tabsMenu;
-	JMenuItem exitMenuItem, addChannelMenuItem, removeChannelMenuItem, aboutMenuItem;
+	JMenu fileMenu, helpMenu, channelsMenu;
+	JMenuItem exitMenuItem, addChannelMenuItem, removeChannelMenuItem, autoJoinChannelsMenuItem, aboutMenuItem;
 	JTabbedPane chatTabbedPane;
+	chatAboutFrame aboutFrame = new chatAboutFrame();
+	chatAutoJoinChannelsFrame autoJoinChannelsFrame;
 	Socket socket;
 	ObjectInputStream messageInputStream;
 	ObjectOutputStream messageOutputStream;
@@ -47,19 +51,16 @@ public class chatFrame extends JInternalFrame implements Runnable
 	HashMap<String, chatPane> chatPaneMap = new HashMap<String, chatPane>();
 	public String username, password;
 	
-	public chatFrame(String username, String password, String serverIP, int portNumber)
+	public chatFrame(String username, String password, String serverIP, int portNumber, JDesktopPane jdp)
 	{
 		super("Chat Frame",true,true,true,true); //call the constructor for the JFrame class
-		setSize(600,400);
+		setSize(800,400);
 		this.username = username;
 		this.password = password;
 		
 		setLayout(new BorderLayout()); //set the layout for the chat Frame
 		
-		/*if (this instanceof JFrame) //if you've compiled it as a JFrame then set it to Exit
-			setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		else // if you've compiled it as a JInternalFrame then set it to Hide*/
-			setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
+		setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
 		 
 		fileMenu = new JMenu("File"); //create a new menu that will hold all the Menu Item that would typically be found in a File menu
 		exitMenuItem = new JMenuItem("Exit"); //create a JMenuItem that will exit the chat when it is clicked on
@@ -67,7 +68,7 @@ public class chatFrame extends JInternalFrame implements Runnable
 		{
 			public void actionPerformed(ActionEvent event)
 			{
-				System.exit(0);
+				setVisible(false);
 			}
 		});
 		fileMenu.add(exitMenuItem); //add the exit Menu Item to the file Menu
@@ -79,11 +80,12 @@ public class chatFrame extends JInternalFrame implements Runnable
 			public void actionPerformed(ActionEvent event)
 			{
 				//show about box here
+				aboutFrame.show();
 			}
 		});
 		helpMenu.add(aboutMenuItem); //add the about Menu Item to the help Menu
 		
-		tabsMenu = new JMenu("Tabs"); //create a new Menu that will hold all the available Menu Items dealing with tabs
+		channelsMenu = new JMenu("Channels"); //create a new Menu that will hold all the available Menu Items dealing with tabs
 		addChannelMenuItem = new JMenuItem("Create New"); //create a new JMenuItem to add channels to the list
 		addChannelMenuItem.addActionListener( new ActionListener() //create a new action listener for when someone clicks the addChannel Menu Item
 		{
@@ -92,7 +94,7 @@ public class chatFrame extends JInternalFrame implements Runnable
 				//add a new channel to the list here.
 			}
 		});
-		tabsMenu.add(addChannelMenuItem); //add the addChannel Menu Item to the tabs Menu
+		channelsMenu.add(addChannelMenuItem); //add the addChannel Menu Item to the tabs Menu
 		removeChannelMenuItem = new JMenuItem("Remove Current"); //create a new JMenuItem to remove channels
 		removeChannelMenuItem.addActionListener( new ActionListener() //create a new action listener for when someone clicks the removeChannel Menu Item
 		{
@@ -101,11 +103,20 @@ public class chatFrame extends JInternalFrame implements Runnable
 				//remove channel from the list here.
 			}
 		});
-		tabsMenu.add(removeChannelMenuItem); //add the remove Channel Menu Item to the tabs menu
+		channelsMenu.add(removeChannelMenuItem); //add the auto Join Channels Menu Item to the tabs menu
+		autoJoinChannelsMenuItem = new JMenuItem("Change AutoJoin Channels"); //create a new JMenuItem to adjust auto Join channels
+		autoJoinChannelsMenuItem.addActionListener( new ActionListener() //create a new action listener for when someone clicks the autoJoinChannels Menu Item
+		{
+			public void actionPerformed(ActionEvent event)
+			{
+				autoJoinChannelsFrame.show();
+			}
+		});
+		channelsMenu.add(autoJoinChannelsMenuItem); //add the autoJoinChannels Menu Item to the tabs menu
 		
 		menuBar = new JMenuBar(); //create a new JMenuBar to hold all the menus
 		menuBar.add(fileMenu); //add the file menu to the menu Bar
-		menuBar.add(tabsMenu); //add the tabs menu to the menu Bar
+		menuBar.add(channelsMenu); //add the tabs menu to the menu Bar
 		menuBar.add(helpMenu); //add the help menu to the menu Bar
 		
 		
@@ -128,21 +139,21 @@ public class chatFrame extends JInternalFrame implements Runnable
 						if (inputText.substring(0,1).equals("/")) //if the first character is a / the you know it is a command
 						{
 							String splitMessage[] = inputText.trim().split(" ",2); //split the input at the first space
-							if (splitMessage[0].equals("/w"))
+							if (splitMessage[0].equalsIgnoreCase("/w"))
 							{
 								String information[] = splitMessage[1].split(" ",2);
 								messageOutputStream.writeObject(new whisperChatMessage("Don't Set Username Here",information[1],information[0]));
 							}
-							else if (splitMessage[0].equals("/r"))
+							else if (splitMessage[0].equalsIgnoreCase("/r"))
 							{
 								messageOutputStream.writeObject(new whisperChatMessage("Don't Set Username Here",splitMessage[1],lastIncomingWhisperSender));
 							}
-							else if (splitMessage[0].equals("/me"))
+							else if (splitMessage[0].equalsIgnoreCase("/me"))
 							{
 								if (checkChatMessageChannel(channelName)) //if you're not in ~Chat Messages Channel
 									messageOutputStream.writeObject(new commandChatMessage("Don't Set Username Here",splitMessage[1],channelName,commandChatMessage.ME_COMMAND));
 							}
-							else if (splitMessage[0].equals("/sc"))
+							else if (splitMessage[0].equalsIgnoreCase("/sc"))
 							{
 								String information[] = splitMessage[1].split(" ",2); //split it so that the channel name is in the first element and the password is in the second
 								if (information.length>1)
@@ -150,51 +161,51 @@ public class chatFrame extends JInternalFrame implements Runnable
 								else
 									messageOutputStream.writeObject(new commandChatMessage("Don't Set Username Here","",information[0],commandChatMessage.SC_COMMAND));
 							}
-							else if (splitMessage[0].equals("/kick"))
+							else if (splitMessage[0].equalsIgnoreCase("/kick"))
 							{
 									messageOutputStream.writeObject(new commandChatMessage("Don't Set Username Here","No message, kicking user",channelName,commandChatMessage.KICK_COMMAND,splitMessage[1]));
 							}
-							else if (splitMessage[0].equals("/lc"))
+							else if (splitMessage[0].equalsIgnoreCase("/lc"))
 							{
 								if (checkChatMessageChannel(channelName)) //if you're not in ~Chat Messages Channel
 									messageOutputStream.writeObject(new commandChatMessage("Don't Set Username Here","No Message",channelName,commandChatMessage.LC_COMMAND));
 							}
-							else if (splitMessage[0].equals("/stfu"))
+							else if (splitMessage[0].equalsIgnoreCase("/stfu"))
 							{
 								messageOutputStream.writeObject(new commandChatMessage("Don't Set Username Here","No Message, stfu",commandChatMessage.STFU_COMMAND,splitMessage[1]));
 							}
-							else if (splitMessage[0].equals("/getIP"))
+							else if (splitMessage[0].equalsIgnoreCase("/getIP"))
 							{
 								messageOutputStream.writeObject(new commandChatMessage("Don't Set Username Here","No Message",commandChatMessage.GET_USER_IP_COMMAND,splitMessage[1]));
 							}
-							else if (splitMessage[0].equals("/getToken"))
+							else if (splitMessage[0].equalsIgnoreCase("/getToken"))
 							{
 								if (checkChatMessageChannel(channelName)) //if you're not in ~Chat Messages Channel
 									messageOutputStream.writeObject(new commandChatMessage("Don't Set Username Here","No message",channelName,commandChatMessage.GET_TOKEN_COMMAND));
 							}
-							else if (splitMessage[0].equals("/muteIP"))
+							else if (splitMessage[0].equalsIgnoreCase("/muteIP"))
 							{
 								messageOutputStream.writeObject(new commandChatMessage("Don't Set Username Here","No Message", commandChatMessage.MUTE_IP_COMMAND, splitMessage[1]));
 							}
-							else if (splitMessage[0].equals("/startUserList"))
+							else if (splitMessage[0].equalsIgnoreCase("/startUserList"))
 							{
 								if (checkChatMessageChannel(channelName)) //if you're not in ~Chat Messages Channel
 									messageOutputStream.writeObject(new commandChatMessage("Don't Set Username Here","No Message",channelName, commandChatMessage.START_USER_LIST_COMMAND));
 							}
-							else if (splitMessage[0].equals("/afk"))
+							else if (splitMessage[0].equalsIgnoreCase("/afk"))
 							{
 								messageOutputStream.writeObject(new commandChatMessage("Don't Set Username Here", "No Message","Don't need channel Name",commandChatMessage.AFK_COMMAND));
 							}
-							else if (splitMessage[0].equals("/changeColor"))
+							else if (splitMessage[0].equalsIgnoreCase("/changeColor"))
 							{
 								String information[] = splitMessage[1].split(" ",2); //split it so that the channel name is in the first element and the password is in the second
 								messageOutputStream.writeObject(new commandChatMessage("Don't Set Username Here",information[1],commandChatMessage.CHANGE_COLOR_COMMAND,information[0]));
 							}
-							else if (splitMessage[0].equals("/makeMod"))
+							else if (splitMessage[0].equalsIgnoreCase("/makeMod"))
 							{
 								messageOutputStream.writeObject(new commandChatMessage("Don't Set Username Here","No Message", commandChatMessage.TOGGLE_MOD_COMMAND, splitMessage[1]));
 							}
-							else if (splitMessage[0].equals("/makeAdmin"))
+							else if (splitMessage[0].equalsIgnoreCase("/makeAdmin"))
 							{
 								messageOutputStream.writeObject(new commandChatMessage("Don't Set Username Here","No Message", commandChatMessage.TOGGLE_ADMIN_COMMAND, splitMessage[1]));
 							}
@@ -265,11 +276,19 @@ public class chatFrame extends JInternalFrame implements Runnable
 			//System.out.println("Flush");
 			messageOutputStream.flush();
 			//System.out.println("End");
+			
+			channelAutoJoinListMessage incomingCAJLM = (channelAutoJoinListMessage)messageInputStream.readObject();
+			
+			autoJoinChannelsFrame = new chatAutoJoinChannelsFrame(messageOutputStream, incomingCAJLM);
+			
+			jdp.add(aboutFrame);
+			jdp.add(autoJoinChannelsFrame);
 		}
 		catch (Exception ex)
 		{
 			ex.printStackTrace();
 		}
+		
 	}
 	
 	public boolean checkChatMessageChannel(String channelName)

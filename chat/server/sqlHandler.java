@@ -28,6 +28,7 @@ public class sqlHandler
 					- username
 					- channelName
 					- channelPassword
+					- joinOrder
 					
 		*/
 	public static final String PLAYER_RELATION_TABLE_NAME = "PlayerRelationTable";
@@ -158,10 +159,21 @@ public class sqlHandler
 		if (username.equals("aoi222"))
 			Update = "INSERT INTO " + USER_INFORMATION_TABLE_NAME + " (username, muted, isMod, isAdmin, color) VALUES ('" + username + "', 0, 1, 1, 1)";
 		
-		String defaultChannels[] = {"General-0","Trade-0","Help-0"};
-		String defualtChannelPasswords[] = {"","",""};
+		Vector<Vector<String>> defaultChannels = new Vector<Vector<String>>();
+		Vector<String> temp = new Vector<String>();
+		temp.add("General-0");
+		temp.add("");
+		defaultChannels.add(temp);
+		temp = new Vector<String>();
+		temp.add("Trade-0");
+		temp.add("");
+		defaultChannels.add(temp);
+		temp = new Vector<String>();
+		temp.add("Help-0");
+		temp.add("");
+		defaultChannels.add(temp);
 		
-		updateAutoJoinChannels(username,defaultChannels,defualtChannelPasswords);
+		updateAutoJoinChannels(username,defaultChannels);
 		
 		try
 		{
@@ -195,12 +207,12 @@ public class sqlHandler
 		}
 	}
 	
-	public void updateAutoJoinChannels(String username, String channelNames[], String passwords[])
+	public void updateAutoJoinChannels(String username, Vector<Vector<String>> channelData)
 	{
 		Connection connection = null;
 		Statement statement = null;
 		String Update = "DELETE FROM " + CHANNEL_AUTOJOIN_TABLE_NAME + " WHERE username LIKE '" + username + "'";
-		
+		int channelOrder = 0; 
 		try
 		{
 			MysqlDataSource dataSource= new MysqlDataSource();
@@ -214,9 +226,9 @@ public class sqlHandler
 			
 			statement.executeUpdate(Update);
 			
-			for (int i = 0; i<channelNames.length; ++i)
+			for (int i = 0; i<channelData.size(); ++i)
 			{
-				Update = "INSERT INTO " + CHANNEL_AUTOJOIN_TABLE_NAME + " (username, channelName, channelPassword) VALUES ('" + username + "', '" + channelNames[i] + "', '" + passwords[i] + "')";
+				Update = "INSERT INTO " + CHANNEL_AUTOJOIN_TABLE_NAME + " (username, channelName, channelPassword, joinOrder) VALUES ('" + username + "', '" + channelData.get(i).get(0) + "', '" + channelData.get(i).get(1) + "'," + (channelOrder++) +")";
 				statement.executeUpdate(Update);
 			}
 			
@@ -242,20 +254,20 @@ public class sqlHandler
 	
 	}
 	
-	public String[][] getAutoJoinChannels(String username)
+	public Vector<Vector<String>> getAutoJoinChannels(String username)
 	{
-		String Querry = "SELECT channelName, channelPassword FROM " + CHANNEL_AUTOJOIN_TABLE_NAME + " WHERE username LIKE '" + username + "'";
+		String Querry = "SELECT channelName, channelPassword FROM " + CHANNEL_AUTOJOIN_TABLE_NAME + " WHERE username LIKE '" + username + "' ORDER BY joinOrder ASC";
 		ResultSet querryResults = querryDatabase(CHAT_DATABASE_NAME, Querry);
-		String returnInformation[][] = new String[2][];
-		Vector<String> channels = new Vector<String>();
-		Vector<String> passwords = new Vector<String>();
+		Vector<Vector<String>> returnValues = new Vector<Vector<String>>();
 		
 		try
 		{
 			while(querryResults.next()) //if there were no results then the user isn't in the DB, so add them
 			{
-				channels.add(querryResults.getString("channelName"));
-				passwords.add(querryResults.getString("channelPassword"));
+				Vector<String> temp = new Vector<String>();
+				temp.add(querryResults.getString("channelName"));
+				temp.add(querryResults.getString("channelPassword"));
+				returnValues.add(temp);
 			}
 			
 			querryResults.close();
@@ -265,10 +277,7 @@ public class sqlHandler
 			ex.printStackTrace();
 		}
 		
-		returnInformation[0] = channels.toArray(new String[1]);
-		returnInformation[1] = passwords.toArray(new String[1]);
-		
-		return returnInformation;
+		return returnValues;
 	}
 	
 	public Object[] loadUserInformation(String username)
