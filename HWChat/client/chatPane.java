@@ -1,4 +1,4 @@
-package chat.client;
+package HWChat.client;
 
 import javax.swing.JPanel;
 import java.awt.Color;
@@ -10,10 +10,17 @@ import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.JCheckBox;
 import javax.swing.JPopupMenu;
+import javax.swing.JMenuItem;
 import java.util.Calendar;
+import java.util.Random;
+import java.lang.Character;
 import java.text.SimpleDateFormat;
 import javax.swing.SwingUtilities;
 import java.util.Vector;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 import javax.swing.JList;
 import javax.swing.ListSelectionModel;
@@ -21,8 +28,9 @@ import java.awt.Dimension;
 import javax.swing.JLabel;
 import javax.swing.ListCellRenderer;
 import java.awt.Component;
+import javax.swing.JSplitPane;
 
-import chat.messages.*;
+import HWChat.messages.*;
 
 public class chatPane extends JPanel
 {
@@ -44,12 +52,14 @@ public class chatPane extends JPanel
 	JScrollPane userListScrollPane;
 	JCheckBox autoscrollCheckBox;
 	JPopupMenu popupMenu;
+	JPopupMenu userListPopupMenu;
 	
-	chatPane(String channelName, chatFrame chatFrameReference)
+  
+	chatPane(String channelName, chatFrame chatFrameRef)
 	{
 		super();
 		//this reference might actually not be needed.
-		this.chatFrameReference = chatFrameReference; //save the reference to the chatFrame that this chatPane is housed in
+		this.chatFrameReference = chatFrameRef; //save the reference to the chatFrame that this chatPane is housed in
 		this.channelName = channelName; //set the name of the channel
 		setBackground(Color.BLACK); //set the background color of the panel (I don't think you actually see this right now because the text pane covers the entire panel)
 		setLayout(new BorderLayout()); //set the layout for the chat Pane
@@ -79,7 +89,7 @@ public class chatPane extends JPanel
 				cellRenderingLabel.setFont(f);
 				cellRenderingLabel.setOpaque(true);
 				cellRenderingLabel.setForeground(Color.WHITE);
-				cellRenderingLabel.setForeground(chatFontAttributes.getColor(channelUserListColors.get(index).intValue()));
+				cellRenderingLabel.setForeground(textFormattings.getColor(channelUserListColors.get(index).intValue()));
 				if (isSelected)
 				{
 					cellRenderingLabel.setBackground(new Color(41,42,41));
@@ -92,6 +102,33 @@ public class chatPane extends JPanel
 				return cellRenderingLabel;
 			}
 		});
+		userList.addMouseListener( new MouseAdapter()
+		{
+			public void mousePressed(MouseEvent e)
+			{
+				if ( SwingUtilities.isRightMouseButton(e) )
+				{
+					userList.setSelectedIndex(userList.locationToIndex(e.getPoint()));
+				}
+				super.mousePressed(e);
+			}
+		});
+
+		userListPopupMenu = new JPopupMenu(); //create a new popup menu for the user list
+		JMenuItem whisperMenuItem = new JMenuItem("Whisper"); //create a new menu item to whisper users with
+		whisperMenuItem.addActionListener( new ActionListener() //create the action listener for when the whisper Menu Item is clicked on
+		{
+			public void actionPerformed(ActionEvent event)
+			{
+				String userToWhisper = (String)userList.getSelectedValue();
+				if (userToWhisper == null)
+					userToWhisper = "NoUsernameSelected";
+				chatFrameReference.inputMessageTextBox.setText("/w " + userToWhisper + " ");
+				chatFrameReference.inputMessageTextBox.requestFocus();
+			}
+		});
+		userListPopupMenu.add(whisperMenuItem);
+		userList.setComponentPopupMenu(userListPopupMenu);
 		
 		userListScrollPane = new JScrollPane(userList,ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         userListScrollPane.setBackground(Color.BLACK);
@@ -101,7 +138,7 @@ public class chatPane extends JPanel
 		userListScrollPane.setVisible(false);
 		
 		add(scrollPane,BorderLayout.CENTER); //add the scroll Pane that contains the chat Text Pane to the center of this chatPane (it should fill the entire pane)
-		add(userListScrollPane,BorderLayout.WEST);
+		//add(userListScrollPane,BorderLayout.WEST);
 	}
 
 	
@@ -124,15 +161,24 @@ public class chatPane extends JPanel
 				normalChatMessage nCM = (normalChatMessage)incomingChatMessage; // cast the incoming message into a normalChatMessage variable
 				
 				//start easter eggs
-				if (nCM.getMessage().equalsIgnoreCase("/meaningOfLife"))
-					nCM.setMessage("42");
-				else if (nCM.getMessage().equalsIgnoreCase("/newLineGlitch"))
+				if (nCM.getMessage().equalsIgnoreCase("/newLineGlitch"))
 				{
 					newLineChar = "";
 					nCM.setMessage("");
 					--currentLineCount; //if you don't decrease this it will cause the chatPane to display 1 less message each time the /newLineGlitch is used
 				}
-				nCM.setMessage(nCM.getMessage().replaceAll("(V|v)(O|o)(L|l)(D|d)(E|e)(M|m)(O|o)(R|r)(T|t)","He-Who-Must-Not-Be-Named"));
+				else if(nCM.getMessage().equalsIgnoreCase("/faceroll") || nCM.getMessage().equalsIgnoreCase("/keyboardfaceroll")) {
+					
+					Random rand = new Random(); //create a new random number generator
+					int len = rand.nextInt(30)+20;
+					String faceroll = "";
+					for (int i = 0; i<len; i++) //loop through 15 times
+					{
+						char ch = (char) (rand.nextInt(95)+32);
+						faceroll += Character.toString(ch);
+					}
+					nCM.setMessage(faceroll);
+				}
 				//end easter eggs
 				
 				doc.insertString(doc.getLength(),getTimeStamp() + " " + nCM.getSender() + ": ",textFormattings.getTextFormatting(nCM.getSenderFontAttribute())); //add the time stamp and the senders name to the display area using the senders name formatting
@@ -141,7 +187,7 @@ public class chatPane extends JPanel
 			else if (incomingChatMessage instanceof whisperChatMessage)
 			{
 				whisperChatMessage wCM = (whisperChatMessage)incomingChatMessage; // cast the incoming message into a whisperChatMessage variable
-				if (wCM.getSender().equals(chatFrameReference.username)) //if this persons username is equal to the message senders then you know he sent it
+				if (wCM.getSender().equalsIgnoreCase(chatFrameReference.username)) //if this persons username is equal to the message senders then you know he sent it
 				{
 					doc.insertString(doc.getLength(),getTimeStamp() + " to " + wCM.getMessageRecipient() + ": " + wCM.getMessage() + "\n",textFormattings.getTextFormatting(chatFontAttributes.WHISPER_SENT_TEXT_FORMATTING)); //add the whisper message to the channel using sent Whisper formatting
 				}
@@ -169,11 +215,13 @@ public class chatPane extends JPanel
 			
 			chatTextPane.setDocument(doc); //set the chatTextPane to display the new document
 			
+			chatFrameReference.repaint();
+			
 			autoscroll(); // call the autoscroll functionality
 		}
 		catch (Exception ex)
 		{
-			
+			ex.printStackTrace();
 		}
 	}
 	
@@ -197,14 +245,22 @@ public class chatPane extends JPanel
 			{
 				public void run() 
 				{
-					scrollPane.getVerticalScrollBar().setValue(scrollPane.getVerticalScrollBar().getMaximum()); // scroll down to the last line
+					try
+					{
+						scrollPane.getVerticalScrollBar().setValue(scrollPane.getVerticalScrollBar().getMaximum()); // scroll down to the last line
+					}
+					catch (Exception ex)
+					{
+						ex.printStackTrace();
+					}
 				}
-			}); 
+			});
 		}
 	}
 	
 	public void startUserList(String usernames[], Integer usernameColors[], String userStatus[])
 	{
+		
 		usernameList = new Vector<String>();
 		channelUserListColors = new Vector<Integer>();
 		usernameStatus = new Vector<String>();
@@ -218,6 +274,19 @@ public class chatPane extends JPanel
 		
 		userList.setListData(usernameList);
 		userListScrollPane.setVisible(true);
+		
+		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,userListScrollPane, scrollPane);
+		splitPane.setOneTouchExpandable(true);
+		splitPane.setDividerLocation(100);
+
+		//Provide minimum sizes for the two components in the split pane
+		Dimension minimumSize = new Dimension(100, 50);
+		userListScrollPane.setMinimumSize(minimumSize);
+		scrollPane.setMinimumSize(minimumSize);
+		
+		add(splitPane, BorderLayout.CENTER);
+
+
 		chatFrameReference.repaint();
 	}
 	

@@ -62,7 +62,7 @@ public class sqlHandler
         if (password.contains("\'")) return false;
 		
 		
-		String Querry = "SELECT password FROM hackerforum.users WHERE name = \"" + username + "\" AND password = PASSWORD(\"" + password + "\")";
+		String Querry = "SELECT password FROM hackerforum.users WHERE name LIKE \"" + username + "\" AND password = PASSWORD(\"" + password + "\")";
 
 		ResultSet loginVerification = querryDatabase(MAIN_DATABASE_NAME,Querry);
 		
