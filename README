@@ -1,5 +1,12 @@
 HackWars Chat 2.0
 
+------------------------------------------------------------------------------------
+This project is no longer up to date. The code has been integrate into the 
+Hackwars game code and stored in the svn repository hosted on SourceForge.net.
+Though in a semi-working state, it does not contain all of the newest features that
+are included in the version in the Hackwars repository. 
+------------------------------------------------------------------------------------
+
 This program is designed to be an add-in to the HackWars MMORPG game 
 client, though it could easily be converted to a stand alone application.
 
